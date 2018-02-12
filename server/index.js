@@ -1,13 +1,18 @@
 var express = require("express");
 var http = require("http");
+var cors = require('cors')
 var app = express();
+
+app.options('*', cors())
+app.use(cors({origin:true,credentials: true}));
+
 var State = require('./transform');
 
 const startTournements = require('./tournements')
 const state = State(startTournements)
 
 app.all("*", function(request, response, next) {
-  response.writeHead(200, { "Content-Type": "json" });
+  //response.writeHead(200, { "Content-Type": "json" });
   next();
 });
 

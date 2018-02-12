@@ -10,6 +10,14 @@ const nmg = [
   'nmg30',
   'nmg31',
   'nmg32',
+  'nmg33mele',
+  'nmg34',
+  'nmg35',
+  'nmg36mele',
+  'nmg37',
+  'nmg38',
+  'nmg39',
+  'nmg40'
 ]
 const ghq = [
   'xkru65q9',
@@ -20,13 +28,27 @@ const ghq = [
   'dea6zdk9',
   'f8foa08',
   'p3cif00w',
-  'y43w2pm5',
+  'v69preog',
+  '53f42d20',
+  '91359blt',
+  'xfunr1we'
 ]
 
 const fudd = [
   'fudds9',
   'fudds14',
-  'fudds15'
+  'fudds15',
+  'fudds16',
+  'fudds17',
+  'fudds18',
+  'fudds19',
+  'fudds20',
+  'fudds21',
+  'fudds22',
+  'fudds23',
+  'fudds24',
+  'plupps25',
+  'fudds26'
 ]
 
 const WIT = [
@@ -36,7 +58,17 @@ const WIT = [
   'ashwit135melee',
   'ashwit136melee',
   'ashwit137melee',
-  'ashwit138melee'
+  'ashwit138melee',
+  'ashwit139melee',
+  'ashwit140melee',
+  'ashwit141melee',
+  'ashwit142melee',
+  'ashwit143melee',
+  'ashwit144melee',
+  'ashwit145melee',
+  'ashwit146melee',
+  'ashwit147melee',
+  'ashwit148melee'
 ]
 
 const uchicago = [

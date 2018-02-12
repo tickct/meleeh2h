@@ -1,15 +1,10 @@
 var { CHALLONGE } = require('./keys');
 var unirest = require('unirest');
-
-const pluck = (...rest) => {
-  if (!rest.length) { return undefined; }
-  const head = rest[0];
-  const tail = rest.slice(1);
-  if (!tail.length) { return o => o[head]; }
-  const recurse = pluck(...tail);
-  return o => o[head] && recurse(o[head]);
-};
-
+const utils = require('./utils/utils');
+console.log(utils)
+const pluck = utils.pluck;
+const normalizeTag = utils.normalizeTag;
+const idMatched = utils.idMatched;
 const getTournementName = pluck('name');
 const getID = pluck('participant','id');
 const getTag = pluck('participant','name');
@@ -19,19 +14,11 @@ const getLoser = pluck('match','loser_id');
 
 const getURL = (tournamentID) => `https://${CHALLONGE.USERNAME}:${CHALLONGE.API_KEY}@api.challonge.com/v1/tournaments/${tournamentID}`
 
-const normalizePlayer = (player) => {
-  const temp = player.toLowerCase().replace(/\*/g,'')
-  if(temp.indexOf('|') !== -1) { return temp.split('|')[1].trim()}
-  return temp
-}
-const idMatched = id => pl => pl.id.toString()===id.toString();
-
 var state = (startTournements) => {
   var tournements = {};
 
   const challongeAdd = (tid) => {
     const url = getURL(tid)
-    console.log("Fetching:"+url)
     addTournement(tid)
     unirest.get(url+"/participants.json")
     .send()
@@ -64,6 +51,10 @@ var state = (startTournements) => {
   }
 
   const addPlayerNames = (tnmt,players) => {
+    if(!players.length || players.length === 0){
+      console.error(`Import Error: ${tnmt} has no participants`)
+      return
+    }
     tPlayers = tournements[tnmt].players
     tournements[tnmt].players = players.map(player => {
       const matchingPlayer = tPlayers.find((pl)=>pl.id===getID(player));
@@ -71,11 +62,11 @@ var state = (startTournements) => {
         ? Object.assign(
             matchingPlayer,
             {
-              tag:normalizePlayer(getTag(player))
+              tag:normalizeTag(getTag(player))
             }
           )
         : {
-            tag:normalizePlayer(getTag(player)),
+            tag:normalizeTag(getTag(player)),
             id:getID(player),
             place:getPlace(player),
             wins:[],
@@ -85,6 +76,10 @@ var state = (startTournements) => {
   }
 
   const addMatchResults = (tnmt,matches) => {
+    if(!matches.length || matches.length === 0){
+      console.error(`Import Error: ${tnmt} has no matches`)
+      return
+    }
     const rotatedResults = matches
       .reduce((acc,match) => {
         const winID = getWinner(match);
@@ -115,26 +110,27 @@ var state = (startTournements) => {
       .map( id => {
         const matchingPlayer = tournements[tnmt].players
           .find(idMatched(id));
+        //console.log(rotatedResults[id].wins)
         return matchingPlayer
           ? Object.assign(
             matchingPlayer,
-            { wins:rotatedResults[id].wins,
-              losses:rotatedResults[id].losses }
+            { wins:rotatedResults[id].wins.map(idToTag(tnmt)),
+              losses:rotatedResults[id].losses.map(idToTag(tnmt)) }
           )
           : {
               id:id,
-              wins:rotatedResults[id].wins,
-              losses:rotatedResults[id].losses
+              wins:rotatedResults[id].wins.map(idToTag(tnmt)),
+              losses:rotatedResults[id].losses.map(idToTag(tnmt))
             };
       }
     );
   };
 
-  const idToTag = tnmt => id =>
-    tournements[tnmt].players
+  const idToTag = tnmt => id => {
+    const find = tournements[tnmt].players
       .find(idMatched(id))
-      .tag;
-
+    return (find && find.tag) || id;
+  }
 
   const getPlayersRaw = () => {
     playerResults = {}
@@ -161,7 +157,7 @@ var state = (startTournements) => {
   }
 
   const countArray = arr => arr.reduce((acc,val)=> {
-    if(!val || val.indexOf("bye") !== -1) { return acc }
+    if(!val || (typeof val !== 'string') || val.indexOf("bye") !== -1) { return acc }
       const index = acc.findIndex(x=>x[val])
       return index === -1
         ? [...acc,{[val]:1}]
@@ -184,20 +180,26 @@ var state = (startTournements) => {
   }
 
   const count = (arr) => arr.reduce(
-    (acc,val) =>
-      acc+Object.keys(val).reduce(
-        (acc2,x)=>
-          acc2+val[x],
-        0),
+    (acc,val) => {
+      return acc+Object.keys(val).reduce(
+        (acc2,x)=>(acc2+val[x]),
+        0)
+      },
     0)
+
+  const eventsAttended = (tag) =>
+    Object.keys(tournements).filter(tnmt =>
+      tournements[tnmt].players.filter(pl => pl.tag === tag).length)
 
   const getPlayer = (tag) => {
     const allPlayers = getPlayersTotals()
     const player = allPlayers.find(obj => obj[tag])
-    console.log(player)
+    if (!player) { return null};
     return Object.assign(
       player[tag],
       {
+        events:eventsAttended(tag),
+        totalEvents:eventsAttended(tag).length,
         totalWins:count(player[tag].wins),
         totalLosses:count(player[tag].losses)
       }
