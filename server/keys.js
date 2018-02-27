@@ -1,6 +1,0 @@
-const CHALLONGE = {
-  USERNAME: [USERNAME],
-  API_KEY: [API_KEY]
-}
-
-module.exports.CHALLONGE = CHALLONGE
