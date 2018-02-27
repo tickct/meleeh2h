@@ -1,6 +1,6 @@
 const CHALLONGE = {
-  USERNAME: 'tickct',
-  API_KEY: 'iPLLZb5PiDQkUG38bhmrAOUNSdtf1ZmSEOtwNuxN'
+  USERNAME: [USERNAME],
+  API_KEY: [API_KEY]
 }
 
 module.exports.CHALLONGE = CHALLONGE

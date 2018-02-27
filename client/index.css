@@ -1,0 +1,162 @@
+.container {
+  font-family:"Trebuchet MS", Helvetica, sans-serif;
+  height:100%;
+  display:flex;
+  flex-direction: column;
+}
+
+.home,.player{
+  width:80%;
+  margin:auto;
+  height:100%
+}
+.playerSummary {
+  display: flex;
+  margin:auto;
+  justify-content: space-between;
+}
+
+.playerHeader {
+  align-self: center;
+  font-size: 1.5em;
+  padding: 5px;
+}
+
+.player_profile {
+    background: #ffffff;
+    border: 1px solid #ff383f;
+    padding: 10px;
+    box-shadow: 3px 7px 8px #888888;
+    border-radius: 9px 9px 9px 9px;
+    -moz-border-radius: 9px 9px 9px 9px;
+    -webkit-border-radius: 9px 9px 9px 9px;
+}
+.results {
+  display: flex;
+  justify-content: space-around;
+}
+
+.submittion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  height: 80px;
+  justify-content: space-between;
+}
+
+.submittion .tag_text_input{
+  width: 40%;
+  height: 20px;
+  flex: 1 1 auto;
+}
+.submittion .submit{
+  padding:10px;
+  font-size: 1em;
+  width: 20%;
+  height:40px;
+}
+
+.submittion .submit:hover {
+  background-color: #afafaf;
+  font-size: 1.1em;
+}
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.player_profile .playerSummary{
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+  border-bottom: 1px solid #afafaf;
+}
+
+.display_bar{
+  justify-content: space-around;
+  list-style-type: none;
+}
+
+.display_bar .display_option.active {
+  color: #ff383f;
+  border-bottom: 1px solid #ff383f;
+}
+
+.display_bar .display_option {
+  border-bottom: 1px solid #afafaf;
+  padding:2px 10px;
+}
+
+.result_tournement {
+  margin-bottom: 10px;
+  margin-right: 10px;
+}
+.result_tournement .stat_blocks {
+  flex-wrap: wrap;
+  width:100%;
+}
+.results {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.result_square {
+  width:120px;
+  align-items: center;
+  margin: 5px;
+  border: 1px solid #888888;
+  border-radius: 5px 5px 5px 5px;
+  -moz-border-radius: 5px 5px 5px 5px;
+  -webkit-border-radius: 5px 5px 5px 5px;
+}
+
+.result_square a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: inherit;
+  color: inherit;
+  cursor: auto;
+}
+
+.header{
+  background-color: #ff383f;
+  padding-left: 5px;
+  width: 100%;
+  color: #ffffff;
+  justify-content: space-between;
+}
+
+.header-nav {
+  display:flex;
+  align-items: center;
+  margin:5px;
+}
+.header-nav .nav-item {
+  text-decoration: none;
+  padding : 5px;
+  color: inherit;
+}
+.header-nav .nav-item:hover {
+  color:#000000
+}
+.lossing {
+  background-color: #ff7777
+}
+.tied {
+  background-color: #ffd877
+}
+.winning{
+  background-color: #77ff7e
+}
+
+html, body
+{
+    height: 100%;
+    margin: 0px;
+    background-color: #f4f4f4;
+}
