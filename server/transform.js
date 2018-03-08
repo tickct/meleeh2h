@@ -1,16 +1,21 @@
 var { CHALLONGE } = require('./keys');
 var unirest = require('unirest');
-const utils = require('./utils/utils');
-console.log(utils)
-const pluck = utils.pluck;
-const normalizeTag = utils.normalizeTag;
-const idMatched = utils.idMatched;
-const getTournementName = pluck('name');
-const getID = pluck('participant','id');
-const getTag = pluck('participant','name');
-const getPlace = pluck('participant','final_rank');
-const getWinner = pluck('match','winner_id');
-const getLoser = pluck('match','loser_id');
+const {
+  pluck,
+  normalizeTag,
+  idMatched
+} = require('./utils/utils');
+
+const playerObj = require('./player')
+
+const {
+  getTournementName,
+  getID,
+  getTag,
+  getPlace,
+  getWinner,
+  getLoser
+} = require('./utils/pluckers')
 
 const getURL = (tournamentID) => `https://${CHALLONGE.USERNAME}:${CHALLONGE.API_KEY}@api.challonge.com/v1/tournaments/${tournamentID}`
 
@@ -59,19 +64,8 @@ var state = (startTournements) => {
     tournements[tnmt].players = players.map(player => {
       const matchingPlayer = tPlayers.find((pl)=>pl.id===getID(player));
       return matchingPlayer
-        ? Object.assign(
-            matchingPlayer,
-            {
-              tag:normalizeTag(getTag(player))
-            }
-          )
-        : {
-            tag:normalizeTag(getTag(player)),
-            id:getID(player),
-            place:getPlace(player),
-            wins:[],
-            losses:[]
-          };
+        ? matchingPlayer.addTag(normalizeTag(getTag(player)))
+        : playerObj.challongePlayertoPlayer(player)
     });
   }
 

@@ -8,7 +8,7 @@ app.use(cors({origin:true,credentials: true}));
 
 var State = require('./transform');
 
-const startTournements = require('./tournements')
+const startTournements = require('./testTournements')
 const state = State(startTournements)
 
 require('./routes/routes')(app,state);
