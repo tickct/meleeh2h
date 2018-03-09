@@ -17,8 +17,17 @@ const normalizeTag = (player) => {
 }
 const idMatched = id => pl => id && pl && pl.id.toString()===id.toString();
 
+//replace item in array with v if pred is true, else add to end of list
+const findAndReplace = arr => (pred,v) => {
+  const index = arr.findIndex(pred)
+  return index != -1
+    ? [...arr.slice(0,index),v,...arr.slice(index+1,arr.length)]
+    : [...arr,v]
+  }
+
 module.exports = {
   pluck,
   normalizeTag,
-  idMatched
+  idMatched,
+  findAndReplace
 }

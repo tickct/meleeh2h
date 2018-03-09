@@ -3,7 +3,8 @@ var unirest = require('unirest');
 const {
   pluck,
   normalizeTag,
-  idMatched
+  idMatched,
+  findAndReplace
 } = require('./utils/utils');
 
 const playerObj = require('./player')
@@ -19,8 +20,11 @@ const {
 
 const getURL = (tournamentID) => `https://${CHALLONGE.USERNAME}:${CHALLONGE.API_KEY}@api.challonge.com/v1/tournaments/${tournamentID}`
 
+
 var state = (startTournements) => {
   var tournements = {};
+
+  const getPlayerFromID = (tnmt,id) => tournements[tnmt].players.find(idMatched(id))
 
   const challongeAdd = (tid) => {
     const url = getURL(tid)
@@ -35,6 +39,7 @@ var state = (startTournements) => {
         .end(res2 => {
           if(res2.ok) {
             addMatchResults(tid,res2.body)
+            console.log(url+" sucessfully added")
           } else {
             console.error("Error fetching matches: ", res.error)
           }
@@ -50,6 +55,7 @@ var state = (startTournements) => {
       tournements,
       {
         [tname]:{
+          tournementName: tname,
           players: []
         }
       })
@@ -62,7 +68,7 @@ var state = (startTournements) => {
     }
     tPlayers = tournements[tnmt].players
     tournements[tnmt].players = players.map(player => {
-      const matchingPlayer = tPlayers.find((pl)=>pl.id===getID(player));
+      const matchingPlayer = getPlayerFromID(tnmt,getID(player));
       return matchingPlayer
         ? matchingPlayer.addTag(normalizeTag(getTag(player)))
         : playerObj.challongePlayertoPlayer(player)
@@ -74,57 +80,17 @@ var state = (startTournements) => {
       console.error(`Import Error: ${tnmt} has no matches`)
       return
     }
-    const rotatedResults = matches
+    tournements[tnmt].players = matches
       .reduce((acc,match) => {
-        const winID = getWinner(match);
-        const loseID = getLoser(match);
-        acc[winID] = acc[winID]
-          ? Object.assign(
-              acc[winID],
-              {
-                wins:[...acc[winID].wins,loseID]
-              }
-            )
-          : {
-              wins:[loseID],
-              losses: []
-            }
-        acc[loseID] = acc[loseID]
-          ? Object.assign(
-              acc[loseID],
-              {losses:[...acc[loseID].losses,winID]}
-            )
-          : {
-              wins:[],
-              losses:[winID]
-            }
+        const winningPlayer = getPlayerFromID(tnmt,getWinner(match));
+        const lossingPlayer = getPlayerFromID(tnmt,getLoser(match));
+        winningPlayer.addWin(lossingPlayer.tag)
+        lossingPlayer.addLoss(winningPlayer.tag)
+        acc = findAndReplace(acc)(idMatched(winningPlayer.id),winningPlayer)
+        acc = findAndReplace(acc)(idMatched(lossingPlayer.id),lossingPlayer)
         return acc;
-      },{});
-    tournements[tnmt].players = Object.keys(rotatedResults)
-      .map( id => {
-        const matchingPlayer = tournements[tnmt].players
-          .find(idMatched(id));
-        //console.log(rotatedResults[id].wins)
-        return matchingPlayer
-          ? Object.assign(
-            matchingPlayer,
-            { wins:rotatedResults[id].wins.map(idToTag(tnmt)),
-              losses:rotatedResults[id].losses.map(idToTag(tnmt)) }
-          )
-          : {
-              id:id,
-              wins:rotatedResults[id].wins.map(idToTag(tnmt)),
-              losses:rotatedResults[id].losses.map(idToTag(tnmt))
-            };
-      }
-    );
+      },[]);
   };
-
-  const idToTag = tnmt => id => {
-    const find = tournements[tnmt].players
-      .find(idMatched(id))
-    return (find && find.tag) || id;
-  }
 
   const getPlayersRaw = () => {
     playerResults = {}
@@ -132,18 +98,18 @@ var state = (startTournements) => {
       .map(tnmt =>
         tournements[tnmt].players.forEach(player => {
           const tag = player.tag
-          if(player.id === 'null'){return}
+          if(player.id === 'null'){ return }
           playerResults[tag] = playerResults[tag]
             ? Object.assign(
                 playerResults[tag],
                 {
-                  wins:[...playerResults[tag].wins,...player.wins.map(idToTag(tnmt))],
-                  losses:[...playerResults[tag].losses,...player.losses.map(idToTag(tnmt))]
+                  wins:[...playerResults[tag].wins,...player.wins],
+                  losses:[...playerResults[tag].losses,...player.losses]
                 }
               )
             : {
-                wins:[...player.wins.map(idToTag(tnmt))],
-                losses:[...player.losses.map(idToTag(tnmt))]
+                wins: player.wins,
+                losses: player.losses
               }
           })
         )

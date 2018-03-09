@@ -22,7 +22,7 @@ function Player(){
     this.wins = [...this.wins,winID]
   }
   function addLoss(loseID){
-    this.losses = [...this.wins,winID]
+    this.losses = [...this.losses,loseID]
   }
   return {
     tag:this.tag,
@@ -30,7 +30,9 @@ function Player(){
     place:this.place,
     wins:this.wins,
     losses:this.losses,
-    addTag
+    addTag,
+    addWin,
+    addLoss
   }
 }
 
@@ -42,7 +44,15 @@ const challongePlayertoPlayer = (player) => {
   return newPlayer
 }
 
+const overallPlayer = (tag,wins,losses) => {
+  const newPlayer = new Player();
+  newPlayer.addTag(tag)
+  newPlayer.wins = wins;
+  newPlayer.losses = losses
+  return newPlayer
+}
 module.exports = {
   Player,
-  challongePlayertoPlayer
+  challongePlayertoPlayer,
+  overallPlayer
 }
